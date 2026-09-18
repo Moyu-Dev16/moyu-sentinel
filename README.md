@@ -1,78 +1,94 @@
-# Moyu-Sentinel 🛡️
-> **Autonomous Workstation Agent with KeeperHub On-Chain Deterministic Execution, Adaptive Resource Governance & Mutation-Resistant Security Verification.**
->
-> *Submitted to DoraHacks — KeeperHub: The Agent Economy Hackathon 2026*
+<div align="center">
+  <img src="logo.jpg" width="160" alt="Moyu Sentinel Logo" style="border-radius: 16px; margin-bottom: 12px;"/>
+  <h1>Moyu-Sentinel 🛡️</h1>
+  <p><strong>Autonomous On-Chain Telemetry & Secure Execution Mesh for Solana AI Agents</strong></p>
+  <p><em>Built for Colosseum Global Hackathon: Crypto World's Fair 2026 & DoraHacks Agent Economy</em></p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![DoraHacks 2026](https://img.shields.io/badge/DoraHacks-KeeperHub%20Hackathon-blue.svg)](https://dorahacks.io)
-[![Execution Layer: KeeperHub](https://img.shields.io/badge/Execution%20Layer-KeeperHub%20MCP-6366f1.svg)](https://keeperhub.com)
-[![Mutation Kill Rate: 100%](https://img.shields.io/badge/Mutation%20Kill-100%25-success.svg)](https://github.com/1f916-ai/1f512/pull/19)
+  <p>
+    <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
+    <a href="https://colosseum.com/arena/projects/moyu-sentinel"><img src="https://img.shields.io/badge/Colosseum-Crypto%20World's%20Fair-14F195.svg?logo=solana" alt="Colosseum Hackathon"/></a>
+    <a href="https://moyu-dev16.github.io/cookie-terminal/"><img src="https://img.shields.io/badge/Live%20Demo-Interactive%20Terminal-00F0FF.svg" alt="Live Demo"/></a>
+    <a href="https://github.com/1f916-ai/1f512/pull/19"><img src="https://img.shields.io/badge/Mutation%20Kill-100%25-success.svg" alt="Mutation Kill Rate"/></a>
+    <a href="https://x.com/KHuoguo"><img src="https://img.shields.io/badge/X%20(Twitter)-@KHuoguo-1DA1F2.svg?logo=x" alt="Twitter"/></a>
+  </p>
+</div>
 
 ---
 
 ## 💡 Overview & Problem Statement
 
-In the emerging Agent Economy, autonomous AI agents operate across physical compute hardware, decentralized forums, and multi-chain protocols. However, real-world agent deployments face two critical failure modes:
-1. **The Fragile Execution Gap**: Autonomous agents reason probabilistically, but on-chain settlement demands deterministic, reliable execution. Unmitigated gas spikes, nonce collision, and MEV sandwich attacks frequently freeze or compromise autonomous workflows.
-2. **Boundary Flaws & Mutation Leaks**: Traditional unit test suites exhibit false confidence, allowing semantic operator mutations (`<=` vs `<`, `>=` vs `>`, zero-value token griefing) to survive unnoticed, causing false default liquidations.
+In the emerging Agent Economy, autonomous AI agents operate across high-frequency on-chain protocols, decentralized coordination networks, and host compute environments. However, production deployments on Solana face three acute failure modes:
 
-**Moyu-Sentinel** solves both challenges by combining **physical workstation health governance**, **semantic mutation testing verification**, and **KeeperHub's high-reliability on-chain execution layer** via the Model Context Protocol (MCP).
+1. **RPC Jitter & Rate Limit Bottlenecks (429 Drops)**: High-frequency agent actions flood public and private RPC nodes, causing intermittent state desynchronization, missed slots, and transaction execution dropouts.
+2. **The Fragile Non-Custodial Boundary**: Autonomous agents reasoning in LLM loops must never be trusted with naked private keys. Without an asynchronous verification and external-signer boundary, key leakage or unconstrained execution risk is catastrophic.
+3. **Semantic Boundary Flaws & Mutation Leaks**: Standard integration tests leave subtle operator mutations (`<=` vs `<`, `>=` vs `>`, zero-value token griefing) undetected, creating exploit vectors in automated fund arbitration.
+
+**Moyu-Sentinel** solves these challenges with an integrated, three-pillar defense:
+- ⚡ **Asynchronous Dual-Stream Telemetry**: Decoupled WebSocket state caching that eliminates RPC jitter and eliminates state drift.
+- 🛡️ **Non-Custodial External Signer Mesh**: Deterministic transaction validation that ensures zero private-key exposure for LLM execution loops.
+- 🔬 **Mutation-Resistant Verification Engine**: Battle-tested AST semantic test guards killing 100% of surviving mutant boundary conditions.
+- 🖥️ **Real-Time Interactive Terminal**: Retro-cyberpunk observable dashboard streaming live agent telemetry with sub-second latency.
 
 ---
 
 ## 🏗️ System Architecture
 
 ```text
-+-------------------------------------------------------------------------+
-|                         Moyu-Sentinel Agent                             |
-|                                                                         |
-|  +-----------------------+               +---------------------------+  |
-|  |   Workstation Monitor |               | Mutation Guard Engine     |  |
-|  |  (CPU < 10%, Memory)  |               | (AST Mutation Verification|  |
-|  +-----------+-----------+               +-------------+-------------+  |
-|              |                                         |                |
-|              v                                         v                |
-|  +-------------------------------------------------------------------+  |
-|  |           Autonomous Sentinel Brain & Policy Arbiter              |  |
-|  +-----------------------------------+-------------------------------+  |
-|                                      |                                  |
-+--------------------------------------|----------------------------------+
-                                       | MCP Tool Call
-                                       v
-         +-------------------------------------------------------+
-         |           KeeperHub Execution Infrastructure          |
-         |                                                       |
-         |  - Smart Gas Estimation (Adaptive exponential backoff)|
-         |  - Nonce & Pipeline Management                        |
-         |  - MEV Protection (Private routing path)              |
-         |  - Deterministic Dry-Run & Simulation Pre-Check       |
-         +---------------------------+---------------------------+
-                                     |
-                                     v
-                        [ Base / EVM Blockchain ]
-                   (Immutable Receipts & Audit Logs)
++-----------------------------------------------------------------------------------------+
+|                                 Moyu-Sentinel Agent Mesh                                |
+|                                                                                         |
+|  +------------------------------+                     +------------------------------+  |
+|  |   Solana Telemetry Ingestion |                     |  Mutation Guard Arbiter      |  |
+|  |   - Dual-stream WS cache     |                     |  - AST Boundary Verification |  |
+|  |   - 429 jitter smoothing     |                     |  - Zero-value grief shields  |  |
+|  +--------------+---------------+                     +--------------+---------------+  |
+|                 |                                                    |                  |
+|                 v                                                    v                  |
+|  +-----------------------------------------------------------------------------------+  |
+|  |                     Autonomous Sentinel Policy Arbiter                            |  |
+|  |                     (Adaptive Workstation Health & Safety)                        |  |
+|  +---------------------------------------+-------------------------------------------+  |
+|                                          |                                              |
++------------------------------------------|----------------------------------------------+
+                                           | MCP / Local RPC
+                                           v
+             +-------------------------------------------------------------+
+             |              Non-Custodial Secure Execution Mesh             |
+             |                                                             |
+             |   - Deterministic Simulation & Pre-flight Validation        |
+             |   - Non-custodial External Signer Boundary                  |
+             |   - Multi-Chain Adaptability (Solana Anchor + Base EVM)     |
+             |   - Append-Only JSONL Verifiable Cryptographic Audit Log    |
+             +-----------------------------+-------------------------------+
+                                           |
+                    +----------------------+----------------------+
+                    |                                             |
+                    v                                             v
+        [ Solana Mainnet / Devnet ]                   [ Base / EVM Settlement ]
+        (Sub-second slot settlement)                  (Multi-chain escrow fallback)
 ```
-
----
 
 ## 🌟 Key Features
 
-### 1. KeeperHub MCP On-Chain Execution
-Translates high-level agent intents into tamper-proof, deterministic transactions using KeeperHub's MCP endpoints:
-- `execute_transfer`: Asset distribution with private mempool routing.
-- `execute_contract_call`: Smart contract interaction with smart gas estimation.
-- `simulate_action`: Pre-execution validation to ensure zero reverted transactions.
+### 1. Asynchronous Dual-Stream Telemetry (Solana)
+- Ingests high-throughput block and account updates via dual WebSocket streams.
+- Solves RPC 429 rate limits and intermittent connection jitter with smart local queueing and state reconciliation.
 
-### 2. Mutation-Resistant Security Verification
+### 2. Non-Custodial External Signer Boundary
+- Translates LLM decision intents into deterministic transactions without exposing naked private keys to agent processes.
+- Native integration with Solana Anchor programs & Base EVM smart contracts.
+- Deterministic dry-run pre-flight simulation before any on-chain settlement.
+
+### 3. Mutation-Resistant Security Verification
 Directly derived from battle-tested contributions to public protocol audits (PR [#19](https://github.com/1f916-ai/1f512/pull/19) on `1f916-ai/1f512`):
 - Guards floor balance, window boundaries (`[from, to)`), disclosure deadlines, and zero-value transfer griefing.
 - Kills 100% of surviving semantic mutants across protocol evaluation gates.
 
-### 3. Adaptive Workstation Governance & Self-Healing
+### 4. Adaptive Workstation Governance & Self-Healing
 - Operates in ultra-quiet background mode (<10% CPU usage) to preserve host workstation stability.
 - Dynamic garbage collection and memory leakage monitoring.
 
-### 4. Cryptographically Verifiable Audit Logs
+### 5. Cryptographically Verifiable Audit Logs
 - Every simulation, trigger, and on-chain execution is written to an append-only JSONL log (`memory/keeperhub_audit.jsonl`), providing complete transparency.
 
 ---
@@ -119,11 +135,15 @@ OK
 
 ---
 
-## 📜 Track Alignment (DoraHacks KeeperHub 2026)
+## 📜 Track Alignment
 
-- **Execution Layer**: Native integration with KeeperHub MCP Server interface.
-- **Problem Solved**: Eliminates agent transaction failures, gas estimation errors, and front-running risks.
-- **Real-World Impact**: Continuously guarding a live workstation in human-agent pairing while executing Web3 micro-bounties with zero capital risk.
+- **Colosseum Global Hackathon (Crypto World's Fair 2026)**:
+  - **Category**: `AI Platforms / Agents`
+  - **Primary Chains**: Solana & Base
+  - **Core Value**: Asynchronous dual-stream telemetry cache & non-custodial external signer boundaries for Solana AI agents, backed by real-time interactive terminal UI.
+- **DoraHacks KeeperHub 2026**:
+  - **Execution Layer**: Native integration with KeeperHub MCP Server interface for deterministic settlement.
+  - **Mutation Defense**: 100% mutant kill rate verifying on-chain boundary constraints.
 
 ---
 
