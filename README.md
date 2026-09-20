@@ -60,39 +60,30 @@ In the emerging Agent Economy, autonomous AI agents operate across high-frequenc
 
 ## 🏗️ System Architecture
 
-```text
-+-----------------------------------------------------------------------------------------+
-|                                 Moyu-Sentinel Agent Mesh                                |
-|                                                                                         |
-|  +------------------------------+                     +------------------------------+  |
-|  |   Solana Telemetry Ingestion |                     |  Mutation Guard Arbiter      |  |
-|  |   - Dual-stream WS cache     |                     |  - AST Boundary Verification |  |
-|  |   - 429 jitter smoothing     |                     |  - Zero-value grief shields  |  |
-|  +--------------+---------------+                     +--------------+---------------+  |
-|                 |                                                    |                  |
-|                 v                                                    v                  |
-|  +-----------------------------------------------------------------------------------+  |
-|  |                     Autonomous Sentinel Policy Arbiter                            |  |
-|  |                     (Adaptive Workstation Health & Safety)                        |  |
-|  +---------------------------------------+-------------------------------------------+  |
-|                                          |                                              |
-+------------------------------------------|----------------------------------------------+
-                                           | MCP / Local RPC
-                                           v
-             +-------------------------------------------------------------+
-             |              Non-Custodial Secure Execution Mesh             |
-             |                                                             |
-             |   - Deterministic Simulation & Pre-flight Validation        |
-             |   - Non-custodial External Signer Boundary                  |
-             |   - Multi-Chain Adaptability (Solana Anchor + Base EVM)     |
-             |   - Append-Only JSONL Verifiable Cryptographic Audit Log    |
-             +-----------------------------+-------------------------------+
-                                           |
-                    +----------------------+----------------------+
-                    |                                             |
-                    v                                             v
-        [ Solana Mainnet / Devnet ]                   [ Base / EVM Settlement ]
-        (Sub-second slot settlement)                  (Multi-chain escrow fallback)
+```mermaid
+flowchart TD
+    subgraph AgentMesh ["Moyu-Sentinel Autonomous Agent Mesh"]
+        subgraph Ingestion ["Ingestion & Verification Layer"]
+            TI["⚡ Solana Telemetry Ingestion<br/>• Dual-stream WS cache<br/>• 429 Jitter smoothing"]
+            MG["🔬 Mutation Guard Arbiter<br/>• AST Boundary Verification<br/>• Zero-value grief shields"]
+        end
+        PA["🛡️ Autonomous Sentinel Policy Arbiter<br/>(Sub-15ms Threat Interceptor & Safety Protocol)"]
+        TI --> PA
+        MG --> PA
+    end
+
+    subgraph Execution ["Non-Custodial Secure Execution Mesh"]
+        EM["🔐 Execution Boundary<br/>• Deterministic Pre-flight Simulation<br/>• External Signer Boundary (No Naked Keys)<br/>• Append-Only Cryptographic Audit Log"]
+    end
+
+    subgraph Settlement ["Multi-Chain Settlement Layer"]
+        SOL["☀️ Solana (SVM)<br/>Sub-second slot settlement"]
+        BASE["🔷 Base (EVM)<br/>Escrow & Identity verification"]
+    end
+
+    PA -->|MCP / Local RPC| EM
+    EM -->|Signed Instructions| SOL
+    EM -->|Dispute & Payouts| BASE
 ```
 
 ## 🌟 Key Features
