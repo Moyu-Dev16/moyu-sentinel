@@ -8,7 +8,9 @@
     <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
     <a href="https://colosseum.com/arena/projects/moyu-sentinel"><img src="https://img.shields.io/badge/Colosseum-Crypto%20World's%20Fair-14F195.svg?logo=solana" alt="Colosseum Hackathon"/></a>
     <a href="https://moyu-dev16.github.io/cookie-terminal/"><img src="https://img.shields.io/badge/Live%20Demo-Interactive%20Terminal-00F0FF.svg" alt="Live Demo"/></a>
+    <a href="WHITEPAPER.md"><img src="https://img.shields.io/badge/Whitepaper-Read%20Paper-blueviolet.svg" alt="Whitepaper"/></a>
     <a href="https://github.com/1f916-ai/1f512/pull/19"><img src="https://img.shields.io/badge/Mutation%20Kill-100%25-success.svg" alt="Mutation Kill Rate"/></a>
+    <a href="https://basescan.org/address/0xEDF82F084C9098Cb1C1Ce2bBd4219Bd838A961C2"><img src="https://img.shields.io/badge/Uptime-27%20Days%20Live-brightgreen.svg" alt="Uptime"/></a>
     <a href="https://x.com/KHuoguo"><img src="https://img.shields.io/badge/X%20(Twitter)-@KHuoguo-1DA1F2.svg?logo=x" alt="Twitter"/></a>
   </p>
 </div>
