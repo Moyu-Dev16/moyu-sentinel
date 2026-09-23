@@ -1,54 +1,78 @@
 import os
 import sys
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-"""
-Moyu-Sentinel End-to-End Demonstrator
-Runs hardware health scan, mutation security gate, and KeeperHub on-chain execution.
-"""
+import struct
 
-from src.sentinel import WorkstationSentinel
-from src.mutation_guard import MutationGuard
-from src.keeperhub_adapter import KeeperHubAdapter
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+from src.sentinel import MoyuSentinel, PolicyConfig
+from src.svm_guard import SYSTEM_PROGRAM_ID, TOKEN_PROGRAM_ID
 
 def main():
     print("===============================================================")
-    print("           MOYU-SENTINEL: AUTONOMOUS AGENT RUNTIME             ")
-    print("          DoraHacks KeeperHub Agent Economy Hackathon          ")
+    print("   MOYU-SENTINEL: SOLANA AGENT TELEMETRY & EXECUTION MESH      ")
+    print("         Built for Colosseum Global Hackathon 2026             ")
     print("===============================================================\n")
+
+    sentinel = MoyuSentinel(
+        policy_config=PolicyConfig(max_lamports_per_tx=5_000_000_000),
+        offline_telemetry=True
+    )
 
     # Step 1: Workstation Health Sentinel
     print("[1] Inspecting Host Workstation Hardware...")
-    sentinel = WorkstationSentinel()
-    hw = sentinel.get_hardware_status()
+    hw = sentinel.hardware.get_hardware_status()
     print(f"    -> CPU Usage: {hw['cpu_percent']}% (Health: {hw['status']})")
     print(f"    -> Memory: {hw['ram_used_gb']} GB / {hw['ram_total_gb']} GB ({hw['ram_percent']}%)")
     print(f"    -> Free Disk: {hw['disk_free_gb']} GB\n")
 
-    # Step 2: Mutation Security Verification Gate
-    print("[2] Executing Semantic Mutation Security Gate...")
-    floor_verdict = MutationGuard.evaluate_floor(1000, 1000)
-    window_verdict = MutationGuard.evaluate_window(5000, 5000, 6000)
-    zero_val_grief = MutationGuard.evaluate_transfer_validity("0xAlice", "0xAlice", 0)
-    print(f"    -> Exact floor balance check: {floor_verdict} (Mutant <= 0 KILLED)")
-    print(f"    -> Window start instant check: {window_verdict} (Mutant > KILLED)")
-    print(f"    -> Zero-value ERC20 griefing check: {'BLOCKED' if not zero_val_grief else 'VULNERABLE'}")
-    print("    -> All 4 mutation security invariants PASSED!\n")
+    # Step 2: Telemetry & Slot Cache
+    print("[2] Asynchronous Dual-Stream Telemetry & Slot Cache...")
+    slot, blockhash = sentinel.telemetry.get_latest_slot_and_blockhash()
+    print(f"    -> Current Slot: {slot}")
+    print(f"    -> Valid Blockhash: {blockhash[:24]}...")
+    print("    -> Jitter Backoff & Slot Drift Guard: ACTIVE\n")
 
-    # Step 3: KeeperHub Deterministic Execution via MCP
-    print("[3] Invoking KeeperHub Execution Layer via MCP...")
-    adapter = KeeperHubAdapter()
-    sim = adapter.simulate_action("verify_and_settle", {"agent": "Moyu-Sentinel", "status": "VERIFIED"})
-    print(f"    -> Dry-Run Simulation: {sim['status']} (Hash: {sim['simulation_hash'][:16]}...)")
-    print(f"    -> Route: {sim['mev_route']} | Estimated Gas: {sim['gas_estimated_units']} units")
+    # Step 3: Safe Transaction Proposal
+    print("[3] Evaluating Safe Agent Transaction Proposal (0.5 SOL Transfer)...")
+    safe_data = struct.pack("<IQ", 2, 500_000_000)
+    safe_ix = [{"program_id": SYSTEM_PROGRAM_ID, "accounts": ["AgentWallet", "Vault"], "data": safe_data}]
+    res_safe = sentinel.process_agent_proposal("prop_safe_001", safe_ix)
+    print(f"    -> Pipeline Status: {res_safe.status}")
+    print(f"    -> Decision: {'APPROVED' if res_safe.approved else 'REJECTED'}")
+    if res_safe.receipt:
+        print(f"    -> Signer Enclave PubKey: {res_safe.receipt.signer_public_key_base58}")
+        print(f"    -> Ed25519 Signature: {res_safe.receipt.signature_base58[:32]}...")
+        print(f"    -> Non-Custodial Signature Verified: {res_safe.receipt.verified}\n")
 
-    exec_result = adapter.execute_transfer("0xEDF82F084C9098Cb1C1Ce2bBd4219Bd838A961C2", 100000)
-    print(f"    -> Settlement Outcome: {exec_result['status']}")
-    print(f"    -> KeeperHub TxHash: {exec_result['tx_hash']}")
-    print(f"    -> Nonce Managed: {exec_result['nonce_managed']} | Gas Used: {exec_result['gas_used']}")
-    print(f"    -> Audit record appended to: {adapter.audit_log_path}\n")
+    # Step 4: Intercepting Malicious Drainer Phishing Attack
+    print("[4] Simulating Phishing Attack: Malicious Token SetAuthority Takeover...")
+    drain_data = bytes([6, 0, 0, 0])
+    drain_ix = [{"program_id": TOKEN_PROGRAM_ID, "accounts": ["TokenAccount", "DrainerKey"], "data": drain_data}]
+    res_attack = sentinel.process_agent_proposal("prop_drain_attack", drain_ix)
+    print(f"    -> Pipeline Status: {res_attack.status}")
+    print(f"    -> Decision: {'APPROVED' if res_attack.approved else 'REJECTED'}")
+    print(f"    -> Intercepted Threats: {res_attack.reasons}\n")
+
+    # Step 5: Intercepting Slot Drift / State Desync
+    print("[5] Simulating State Desynchronization (180 Slots Lag)...")
+    res_drift = sentinel.process_agent_proposal("prop_stale", safe_ix, reference_slot=slot - 180)
+    print(f"    -> Pipeline Status: {res_drift.status}")
+    print(f"    -> Intercepted Reasons: {res_drift.reasons}\n")
+
+    # Step 6: Verifying Cryptographic Audit Ledger
+    print("[6] Verifying Tamper-Evident SHA-256 Audit Chain...")
+    valid, report = sentinel.audit.verify_chain_integrity()
+    print(f"    -> Chain Integrity: {'100% VERIFIED' if valid else 'COMPROMISED'}")
+    print(f"    -> Audit Report: {report}\n")
 
     print("===============================================================")
-    print("       MOYU-SENTINEL WORKFLOW COMPLETED SUCCESSFULLY!          ")
+    print("       MOYU-SENTINEL SECURE WORKFLOW COMPLETED!                ")
     print("===============================================================")
 
 if __name__ == "__main__":

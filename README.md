@@ -56,9 +56,30 @@ In the emerging Agent Economy, autonomous AI agents operate across high-frequenc
 4. **1-Minute Video Update**:
    - Official Week 1 video report submitted on the [Colosseum Arena](https://arena.colosseum.org/) and mirrored in this repository (`assets/colosseum-week1-update.mp4`).
 
+
 ---
 
-## 🏗️ System Architecture
+## 📅 Week 2 Progress Update (Colosseum Hackathon)
+
+### 🚀 What Shipped This Week? (Code Polish & Production Hardening)
+1. **Solana SVM Instruction Disassembler & AST Guard (`src/svm_guard.py`)**:
+   - Native disassembly of System, SPL Token, Token-2022, Compute Budget, and DEX instructions (Jupiter, Raydium, Cookie DEX).
+   - Real-time threat categorization: blocks `TokenProgram.SetAuthority` drainers, `SystemProgram.Assign` hijacks, zero-value dust griefing, and unapproved program calls.
+2. **Non-Custodial Ed25519 External Signer Enclave (`src/signer_mesh.py`)**:
+   - Zero private-key leakage into LLM runtime contexts.
+   - The Enclave strictly refuses to sign any transaction unless accompanied by an authorized `PolicyVerdict` and matching cryptographic approval token.
+3. **Asynchronous Dual-Stream Telemetry & Slot Drift Watchdog (`src/telemetry.py`)**:
+   - Mitigates HTTP 429 rate limit drops via randomized jitter & exponential backoff.
+   - Caches fresh blockhashes and prevents state desynchronization by halting on stale slot drift (>150 slots lag).
+4. **Verifiable SHA-256 Cryptographic Audit Ledger (`src/audit_ledger.py`)**:
+   - Tamper-evident hash-linked chain (`prev_hash` block architecture).
+   - Built-in trustless verification method: `sentinel.audit.verify_chain_integrity()`.
+5. **Production CLI & 37-Test Hardened Suite**:
+   - Operator terminal interface: `python -m src.cli status` & `python -m src.cli demo`.
+   - 37 comprehensive unit & integration tests passing with 100% success rate.
+
+---
+
 
 ```mermaid
 flowchart TD
@@ -120,36 +141,70 @@ cd moyu-sentinel
 pip install -r requirements.txt
 ```
 
-### 2. Run the End-to-End Demo
+### 2. Inspect Sentinel Status & Live Telemetry
 ```bash
-python examples/demo.py
+python -m src.cli status
 ```
 
-### 3. Run Automated Tests
+### 3. Run the End-to-End Threat Defense Demo
 ```bash
-python -m unittest discover tests
+python examples/demo.py
+# or
+python -m src.cli demo
+```
+
+### 4. Run Automated Test Suite
+```bash
+pytest -v
 ```
 
 ---
 
 ## 📊 Verification & Test Results
 
-All test suites pass locally in sub-second execution:
+All 37 test suites pass locally in sub-second execution (100% pass rate):
 ```text
-test_contract_call (tests.test_keeperhub.TestKeeperHubAdapter) ... ok
-test_deterministic_hash (tests.test_keeperhub.TestKeeperHubAdapter) ... ok
-test_transfer_execution (tests.test_keeperhub.TestKeeperHubAdapter) ... ok
-test_disclosure_deadline_mutation (tests.test_mutation_guard.TestMutationGuard) ... ok
-test_floor_boundary_mutation (tests.test_mutation_guard.TestMutationGuard) ... ok
-test_half_open_window_mutation (tests.test_mutation_guard.TestMutationGuard) ... ok
-test_zero_value_transfer_griefing (tests.test_mutation_guard.TestMutationGuard) ... ok
-test_hardware_status (tests.test_sentinel.TestSentinel) ... ok
+tests/test_audit_ledger.py::test_audit_ledger_hash_chaining PASSED       [  2%]
+tests/test_audit_ledger.py::test_audit_ledger_tamper_detection PASSED    [  5%]
+tests/test_keeperhub.py::TestKeeperHubAdapter::test_contract_call PASSED [  8%]
+tests/test_keeperhub.py::TestKeeperHubAdapter::test_deterministic_hash PASSED [ 10%]
+tests/test_keeperhub.py::TestKeeperHubAdapter::test_transfer_execution PASSED [ 13%]
+tests/test_mutation_guard.py::TestMutationGuard::test_disclosure_deadline_mutation PASSED [ 16%]
+tests/test_mutation_guard.py::TestMutationGuard::test_floor_boundary_mutation PASSED [ 18%]
+tests/test_mutation_guard.py::TestMutationGuard::test_half_open_window_mutation PASSED [ 21%]
+tests/test_mutation_guard.py::TestMutationGuard::test_zero_value_transfer_griefing PASSED [ 24%]
+tests/test_policy_engine.py::test_policy_approved_normal PASSED          [ 27%]
+tests/test_policy_engine.py::test_policy_per_tx_cap_violation PASSED     [ 29%]
+tests/test_policy_engine.py::test_policy_daily_quota_exhaustion PASSED   [ 32%]
+tests/test_policy_engine.py::test_policy_blocked_recipient PASSED        [ 35%]
+tests/test_policy_engine.py::test_policy_simulation_failure_fail_closed PASSED [ 37%]
+tests/test_sentinel.py::TestSentinel::test_hardware_status PASSED        [ 40%]
+tests/test_sentinel_e2e.py::test_sentinel_end_to_end_safe_proposal PASSED [ 43%]
+tests/test_sentinel_e2e.py::test_sentinel_end_to_end_blocked_set_authority PASSED [ 45%]
+tests/test_sentinel_e2e.py::test_sentinel_end_to_end_slot_drift_halt PASSED [ 48%]
+tests/test_signer_mesh.py::test_generate_keypair_and_pubkey PASSED       [ 51%]
+tests/test_signer_mesh.py::test_sign_approved_proposal PASSED            [ 54%]
+tests/test_signer_mesh.py::test_refuse_unapproved_proposal PASSED        [ 56%]
+tests/test_signer_mesh.py::test_tampered_payload_verification_fails PASSED [ 59%]
+tests/test_svm_guard.py::test_system_transfer_safe PASSED                [ 62%]
+tests/test_svm_guard.py::test_system_transfer_excessive PASSED           [ 64%]
+tests/test_svm_guard.py::test_system_transfer_zero_value PASSED          [ 67%]
+tests/test_svm_guard.py::test_system_assign_hijack PASSED                [ 70%]
+tests/test_svm_guard.py::test_token_set_authority_trap PASSED            [ 72%]
+tests/test_svm_guard.py::test_token_close_account PASSED                 [ 75%]
+tests/test_svm_guard.py::test_token_transfer_checked_safe PASSED         [ 78%]
+tests/test_svm_guard.py::test_unauthorized_program_id PASSED             [ 81%]
+tests/test_svm_guard.py::test_compute_budget_excessive_price PASSED      [ 83%]
+tests/test_svm_guard.py::test_transaction_multi_instruction_aggregation PASSED [ 86%]
+tests/test_telemetry.py::test_telemetry_cache_hit PASSED                 [ 89%]
+tests/test_telemetry.py::test_slot_drift_detection_healthy PASSED        [ 91%]
+tests/test_telemetry.py::test_slot_drift_detection_stale_lag PASSED      [ 94%]
+tests/test_telemetry.py::test_slot_drift_detection_future_anomaly PASSED [ 97%]
+tests/test_telemetry.py::test_telemetry_snapshot PASSED                  [100%]
 
-----------------------------------------------------------------------
-Ran 8 tests in 0.042s
-
-OK
+============================= 37 passed in 0.30s ==============================
 ```
+
 
 ---
 
