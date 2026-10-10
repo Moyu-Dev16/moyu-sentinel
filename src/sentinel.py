@@ -15,6 +15,7 @@ from .policy_engine import PolicyEngine, PolicyConfig, PolicyVerdict, PolicyDeci
 from .telemetry import TelemetryCache, TelemetrySnapshot
 from .signer_mesh import ExternalSignerMesh, SignedExecutionReceipt, SignerSecurityViolation
 from .audit_ledger import AuditLedger, AuditEntry
+from .circuit_breaker import CircuitBreaker, CircuitBreakerConfig, CircuitState
 
 @dataclass
 class SentinelPipelineResult:
@@ -57,7 +58,8 @@ class MoyuSentinel:
         self,
         policy_config: Optional[PolicyConfig] = None,
         audit_path: Optional[str] = None,
-        offline_telemetry: bool = False
+        offline_telemetry: bool = False,
+        circuit_breaker_config: Optional[CircuitBreakerConfig] = None
     ):
         self.hardware = HardwareGovernor()
         self.guard = SVMGuard()
@@ -65,6 +67,7 @@ class MoyuSentinel:
         self.telemetry = TelemetryCache(offline_mode=offline_telemetry)
         self.signer = ExternalSignerMesh()
         self.audit = AuditLedger(audit_path)
+        self.circuit_breaker = CircuitBreaker(circuit_breaker_config)
 
     def process_agent_proposal(
         self,
@@ -77,6 +80,19 @@ class MoyuSentinel:
         """
         Execute full zero-trust validation pipeline for an autonomous agent proposal.
         """
+        # 0. Circuit Breaker Guard
+        can_exec, cb_block_reason = self.circuit_breaker.can_execute()
+        if not can_exec:
+            self.audit.record_event("CIRCUIT_BREAKER_BLOCKED", {
+                "proposal_id": proposal_id,
+                "reason": cb_block_reason
+            })
+            return SentinelPipelineResult(
+                status="REJECTED_CIRCUIT_BREAKER_OPEN",
+                approved=False,
+                reasons=[cb_block_reason or "Circuit Breaker is OPEN"]
+            )
+
         # 1. Log Proposal Ingestion
         self.audit.record_event("PROPOSAL_RECEIVED", {
             "proposal_id": proposal_id,
@@ -89,6 +105,7 @@ class MoyuSentinel:
         if reference_slot is not None:
             is_valid_slot, drift, details = self.telemetry.check_slot_drift(reference_slot)
             if not is_valid_slot:
+                self.circuit_breaker.record_failure(f"Slot drift: {details}")
                 self.audit.record_event("SLOT_DRIFT_REJECT", {
                     "proposal_id": proposal_id,
                     "drift_slots": drift,
@@ -113,6 +130,7 @@ class MoyuSentinel:
 
         if not inspection.is_safe:
             reasons = [f"AST Threat [{t['category']}]: {t['details'] or t['instruction']}" for t in inspection.threats_detected]
+            self.circuit_breaker.record_failure(reasons[0])
             self.audit.record_event("PROPOSAL_REJECTED", {
                 "proposal_id": proposal_id,
                 "reasons": reasons
@@ -151,6 +169,7 @@ class MoyuSentinel:
         })
 
         if not verdict.approved:
+            self.circuit_breaker.record_failure(verdict.reasons[0])
             self.audit.record_event("PROPOSAL_REJECTED", {
                 "proposal_id": proposal_id,
                 "reasons": verdict.reasons
@@ -183,6 +202,7 @@ class MoyuSentinel:
         try:
             receipt = self.signer.sign_transaction_proposal(tx_payload, verdict)
             self.policy.record_spend(inspection.total_lamports_transferred)
+            self.circuit_breaker.record_success()
 
             audit_entry = self.audit.record_event("TRANSACTION_SIGNED", {
                 "proposal_id": proposal_id,
@@ -202,6 +222,7 @@ class MoyuSentinel:
                 slot=current_slot
             )
         except SignerSecurityViolation as e:
+            self.circuit_breaker.record_failure(str(e))
             self.audit.record_event("SIGNER_VIOLATION", {
                 "proposal_id": proposal_id,
                 "error": str(e)
@@ -230,6 +251,7 @@ class MoyuSentinel:
                 "cache_hit_rate": telemetry.cache_hit_rate,
                 "status": telemetry.status
             },
+            "circuit_breaker": self.circuit_breaker.get_status(),
             "hardware": hw,
             "audit_chain": {
                 "is_intact": chain_valid,

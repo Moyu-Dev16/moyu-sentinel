@@ -30,6 +30,8 @@ def cmd_status(sentinel: MoyuSentinel):
     print(f"🧱 Recent Blockhash      : {status['telemetry']['blockhash'][:24]}...")
     print(f"⏱️  RPC Latency          : {status['telemetry']['rpc_latency_ms']} ms")
     print(f"🎯 Cache Hit Rate        : {status['telemetry']['cache_hit_rate'] * 100:.1f}%")
+    cb = status.get('circuit_breaker', {})
+    print(f"🛡️  Circuit Breaker       : [{cb.get('state', 'UNKNOWN')}] (Failures: {cb.get('consecutive_failures', 0)}, Anomaly Rate: {cb.get('rolling_anomaly_rate', 0.0)*100:.1f}%)")
     print("-" * 65)
     print(f"🖥️  Workstation Hardware  : CPU {status['hardware']['cpu_percent']}% | RAM {status['hardware']['ram_used_gb']}/{status['hardware']['ram_total_gb']} GB ({status['hardware']['ram_percent']}%)")
     print(f"🔒 Audit Chain Health    : {'[VALID]' if status['audit_chain']['is_intact'] else '[BROKEN]'} {status['audit_chain']['verification_message']}")
@@ -84,8 +86,18 @@ def cmd_demo(sentinel: MoyuSentinel):
     print(f"  Verdict: {res4.status} (Approved={res4.approved})")
     print(f"  Intercepted Reasons: {res4.reasons}")
 
-    # 5. Audit Chain Verification
-    print("\n[Scenario 5] Cryptographic Audit Chain Verification")
+    # 5. Circuit Breaker Auto-Trip & Cascading Containment
+    print("\n[Scenario 5] Anomaly Spike: Circuit Breaker Auto-Trip & Anomaly Containment")
+    for i in range(3):
+        sentinel.process_agent_proposal(f"cascade_attack_{i}", threat_ix)
+    cb_status = sentinel.circuit_breaker.get_status()
+    print(f"  Circuit Breaker State after anomaly burst: [{cb_status['state']}]")
+    res_cb = sentinel.process_agent_proposal("post_trip_tx", safe_ix)
+    print(f"  Fail-Closed Protection: {res_cb.status} (Reasons: {res_cb.reasons})")
+    sentinel.circuit_breaker.reset()
+
+    # 6. Audit Chain Verification
+    print("\n[Scenario 6] Cryptographic Audit Chain Verification")
     valid, audit_msg = sentinel.audit.verify_chain_integrity()
     print(f"  Chain Integrity: {'100% VERIFIED' if valid else 'COMPROMISED'}")
     print(f"  Audit Report: {audit_msg}")
