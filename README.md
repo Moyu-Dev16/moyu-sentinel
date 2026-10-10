@@ -106,6 +106,9 @@ In the emerging Agent Economy, autonomous AI agents operate across high-frequenc
    - Real-time diagnostics for hardware footprint, signer enclave public keys, RPC latency, and cryptographic audit hash-chain integrity.
 4. **Production Battle-Ready for Solana Agent Economy**:
    - Ready for mainnet-beta autonomous trading agents, multi-agent swarms, and decentralized copilot infrastructure.
+5. **Official Week 4 1-Minute Video Update**:
+   - 🎬 YouTube Walkthrough: [https://youtu.be/sLdiE_PLAvM](https://youtu.be/sLdiE_PLAvM)
+   - 📦 High-Definition Master: `assets/colosseum-week4-update.mp4` (1080p, 60s, Silicon Valley voiceover & burnt-in captions)
 
 ---
 
